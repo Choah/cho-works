@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<section>
+  <h1>보고서 수정</h1>
+  <p class="muted">{{ summary.period_type }} · {{ summary.period_key }}</p>
+</section>
+
+<section class="panel">
+  <form method="post" action="/summary/{{ period }}/edit">
+    <input type="hidden" name="period_key" value="{{ summary.period_key }}">
+    <input type="hidden" name="return_url" value="{{ return_url }}">
+    <label>제목
+      <input name="title" value="{{ summary.title }}" required>
+    </label>
+    <label>보고서 내용
+      <textarea name="body" class="report-editor" required>{{ summary.body }}</textarea>
+    </label>
+    <div class="actions">
+      <button type="submit">저장</button>
+      <a class="button secondary" href="{{ return_url }}">취소</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

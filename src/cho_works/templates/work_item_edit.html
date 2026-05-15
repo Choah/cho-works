@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<section>
+  <h1>업무 카드 수정</h1>
+  <p class="muted">{{ item.key }}{% if item.source_work_date %} · 기록일 {{ item.source_work_date }}{% endif %}</p>
+</section>
+
+<section class="panel">
+  <form method="post" action="/work-items/{{ item.id }}">
+    <label>제목
+      <input name="title" value="{{ item.title }}" required>
+    </label>
+    <label>설명
+      <textarea name="description">{{ item.description or '' }}</textarea>
+    </label>
+    <div class="row">
+      <label>상태
+        <select name="status">
+          {% for key, label in status_labels.items() %}
+            <option value="{{ key }}" {% if item.status == key %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>업무 유형
+        <select name="item_type">
+          {% for key, label in type_labels.items() %}
+            <option value="{{ key }}" {% if item.item_type == key %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </div>
+    <div class="row">
+      <label>우선순위
+        <select name="priority">
+          {% for priority in priorities %}
+            <option value="{{ priority }}" {% if item.priority == priority %}selected{% endif %}>{{ priority }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>완료일
+        <input type="date" name="completed_at" value="{{ item.completed_at[:10] if item.completed_at else '' }}" data-open-date-picker="true">
+      </label>
+    </div>
+    <div class="actions">
+      <button type="submit">저장</button>
+      <a class="button secondary" href="/board">취소</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

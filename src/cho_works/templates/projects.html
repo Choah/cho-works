@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <h1>프로젝트별 기록</h1>
+    <p class="muted">프로젝트 카드</p>
+  </div>
+</section>
+
+<section class="project-list">
+  {% for card in project_cards %}
+    {% set project = card.project %}
+    <article class="project-card">
+      <div class="project-title">
+        <p><span class="pill">{{ project.key }}</span></p>
+        <h2><a class="project-link" href="/projects/{{ project.key }}">{{ project.name }}</a></h2>
+      </div>
+      {% if project.goal %}<p>{{ project.goal }}</p>{% endif %}
+      <div class="project-meta">
+        <span>기록 {{ card.entry_count }}개</span>
+        <span>카드 {{ card.item_count }}개</span>
+        {% if card.last_date %}<span>최근 {{ card.last_date }}</span>{% endif %}
+      </div>
+      <p class="muted">{{ project.status }} · {{ project.health }}{% if project.target_date %} · {{ project.target_date }}{% endif %}</p>
+      <div>
+        <a class="text-link" href="/summary/project?project={{ project.key }}">프로젝트 표준 요약</a>
+      </div>
+    </article>
+  {% else %}
+    <div class="empty-state">
+      <p class="muted">아직 프로젝트가 없습니다. 오늘 기록에서 프로젝트명을 입력하면 여기에 쌓입니다.</p>
+    </div>
+  {% endfor %}
+</section>
+
+<section class="panel compact-form">
+  <h2>프로젝트 정보 보강</h2>
+  <form method="post" action="/projects">
+    <div class="row">
+      <label>프로젝트
+        <input name="key" list="project-options" placeholder="API" required>
+        <datalist id="project-options">
+          {% for project in projects %}
+            <option value="{{ project.key }}">{{ project.name }}</option>
+            {% if project.name != project.key %}
+              <option value="{{ project.name }}">{{ project.key }}</option>
+            {% endif %}
+          {% endfor %}
+        </datalist>
+      </label>
+      <label>표시 이름
+        <input name="name" placeholder="API 안정화" required>
+      </label>
+    </div>
+    <label>성과 목표
+      <input name="goal" placeholder="장애를 줄이고 배포 신뢰도를 높인다">
+    </label>
+    <button type="submit">저장</button>
+  </form>
+</section>
+{% endblock %}

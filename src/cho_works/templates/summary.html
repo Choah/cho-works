@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <h1>{{ summary.title }}</h1>
+    <p class="muted">
+      출처 기록 {{ summary.source_entry_ids | length }}개
+      {% if summary_nav %} · {{ summary_nav.range_label }}{% else %} · {{ summary.period_key }}{% endif %}
+    </p>
+  </div>
+  <div class="actions">
+    {% if summary_nav %}
+      <a class="button secondary" href="{{ summary_nav.prev_url }}">{{ summary_nav.prev_label }}</a>
+      <a class="button secondary" href="{{ summary_nav.next_url }}">{{ summary_nav.next_label }}</a>
+    {% endif %}
+    <a class="button secondary" href="{{ edit_url }}">수정</a>
+    <a class="button secondary" href="{{ refresh_url }}">다시 정리</a>
+  </div>
+</section>
+
+<section class="report-overview">
+  <h2>보고서 개요</h2>
+  <div class="report-metrics">
+    {% for card in report_metrics.cards %}
+      <article class="metric report-metric" aria-label="{{ card.label }} {{ card.value }}">
+        <span class="muted">{{ card.label }}</span>
+        <strong>{{ card.value }}</strong>
+      </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="report-breakdown">
+  <h2>처리량</h2>
+  <div class="report-columns">
+    <article class="report-panel">
+      <h3>프로젝트별 처리</h3>
+      {% for row in report_metrics.project_counts %}
+        <div class="bar-row">
+          <span>{{ row.label }}</span>
+          <strong>{{ row.count }}건</strong>
+          <i style="width: {{ row.percent }}%"></i>
+        </div>
+      {% else %}
+        <p class="muted">프로젝트 기록이 없습니다.</p>
+      {% endfor %}
+    </article>
+    <article class="report-panel">
+      <h3>업무 유형</h3>
+      {% for row in report_metrics.item_counts %}
+        <div class="bar-row">
+          <span>{{ row.label }}</span>
+          <strong>{{ row.count }}건</strong>
+          <i style="width: {{ row.percent }}%"></i>
+        </div>
+      {% else %}
+        <p class="muted">분류된 업무가 없습니다.</p>
+      {% endfor %}
+    </article>
+    <article class="report-panel">
+      <h3>보드 상태</h3>
+      {% for row in report_metrics.status_counts %}
+        <div class="bar-row">
+          <span>{{ row.label }}</span>
+          <strong>{{ row.count }}건</strong>
+          <i style="width: {{ row.percent }}%"></i>
+        </div>
+      {% else %}
+        <p class="muted">연결된 보드 카드가 없습니다.</p>
+      {% endfor %}
+    </article>
+  </div>
+</section>
+
+<section>
+  <h2>정리된 리포트</h2>
+  <div class="report-sections">
+    {% for section in report_sections %}
+      <article class="report-section">
+        <h3>{{ section.title }}</h3>
+        {% for paragraph in section.paragraphs %}
+          <p>{{ paragraph }}</p>
+        {% endfor %}
+        {% if section.item_rows %}
+          <ul>
+            {% for item in section.item_rows %}
+              {% if item.title %}
+                <li class="report-item-card structured">
+                  <strong>{{ item.title }}</strong>
+                  <span class="report-item-summary"><b>요약</b>{{ item.summary }}</span>
+                  {% if item.details %}
+                    <div class="report-evidence-label">근거 작업</div>
+                    <ul class="report-evidence-list">
+                      {% for detail in item.details %}
+                        <li>{{ detail }}</li>
+                      {% endfor %}
+                      {% if item.continued %}
+                        <li>외 추가 작업</li>
+                      {% endif %}
+                    </ul>
+                  {% endif %}
+                </li>
+              {% else %}
+                <li>{{ item.text }}</li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </article>
+    {% else %}
+      <p class="muted">표시할 리포트가 없습니다.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

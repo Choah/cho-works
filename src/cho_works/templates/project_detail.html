@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p><span class="pill">{{ project.key }}</span></p>
+    <h1>{{ project.name }}</h1>
+    {% if project.goal %}<p class="raw-text">{{ project.goal }}</p>{% endif %}
+    <p class="muted">
+      {{ project.status }} · {{ project.health }}{% if project.target_date %} · {{ project.target_date }}{% endif %}
+    </p>
+  </div>
+  <div class="actions">
+    <a class="button" href="/summary/project?project={{ project.key }}">프로젝트 표준 요약</a>
+    <a class="button secondary" href="/board">보드 보기</a>
+  </div>
+</section>
+
+<section class="panel project-profile">
+  <div class="section-head">
+    <div>
+      <h2>프로젝트 상세</h2>
+      <p class="muted">프로젝트명, 목표, 업무 내용을 중심으로 연간 업적/역량 평가 근거를 관리합니다.</p>
+    </div>
+  </div>
+  <div class="project-profile-grid">
+    <article>
+      <h3>프로젝트명</h3>
+      <p>{{ project.name }}</p>
+    </article>
+    <article>
+      <h3>목표</h3>
+      <p class="raw-text">{{ project.goal or "미작성" }}</p>
+    </article>
+    <article class="profile-wide">
+      <h3>업무 내용</h3>
+      <p class="raw-text">{{ project.work_content or "미작성" }}</p>
+    </article>
+  </div>
+  <details class="raw-original profile-extra">
+    <summary>평가 보강 정보</summary>
+    <div class="project-profile-grid">
+      <article>
+        <h3>프로젝트 개요</h3>
+        <p class="raw-text">{{ project.summary or "미작성" }}</p>
+      </article>
+      <article>
+        <h3>대상/기능</h3>
+        <dl class="profile-list">
+          <dt>대상</dt>
+          <dd>{{ project.target_users or "미작성" }}</dd>
+          <dt>핵심 기능</dt>
+          <dd class="raw-text">{{ project.core_features or "미작성" }}</dd>
+          <dt>부가기능</dt>
+          <dd class="raw-text">{{ project.additional_features or "미작성" }}</dd>
+        </dl>
+      </article>
+      <article>
+        <h3>수행 단계</h3>
+        <p class="raw-text">{{ project.execution_stage or "미작성" }}</p>
+      </article>
+      <article>
+        <h3>정성/정량 효과</h3>
+        <dl class="profile-list">
+          <dt>정성 효과</dt>
+          <dd class="raw-text">{{ project.qualitative_effect or "미작성" }}</dd>
+          <dt>정량 효과</dt>
+          <dd class="raw-text">{{ project.quantitative_effect or "미작성" }}</dd>
+        </dl>
+      </article>
+      <article>
+        <h3>산출물</h3>
+        <p class="raw-text">{{ project.deliverables or "미작성" }}</p>
+      </article>
+    </div>
+  </details>
+</section>
+
+<section class="panel compact-form">
+  <h2>프로젝트 정보 수정</h2>
+  <form method="post" action="/projects">
+    <input type="hidden" name="key" value="{{ project.key }}">
+    <input type="hidden" name="return_to" value="/projects/{{ project.key }}">
+    <label>프로젝트명
+      <input name="name" value="{{ project.name }}" required>
+    </label>
+    <label>목표
+      <textarea name="goal" placeholder="업무 목표와 세부 목표를 그대로 작성">{{ project.goal or '' }}</textarea>
+    </label>
+    <label>업무 내용
+      <textarea class="tall-textarea" name="work_content" placeholder="[사내 개발환경 최적화]&#10;- 업무 내용">{{ project.work_content or '' }}</textarea>
+    </label>
+    <details class="raw-original profile-extra">
+      <summary>평가 보강 정보 추가 입력</summary>
+      <label>프로젝트 개요
+        <textarea name="summary" placeholder="프로젝트의 배경, 문제 정의, 전체 방향">{{ project.summary or '' }}</textarea>
+      </label>
+    <div class="row">
+      <label>대상
+        <textarea name="target_users" placeholder="사용자, 이해관계자, 적용 조직">{{ project.target_users or '' }}</textarea>
+      </label>
+      <label>수행 단계
+        <textarea name="execution_stage" placeholder="기획, MVP, 검증, 고도화, 운영 등">{{ project.execution_stage or '' }}</textarea>
+      </label>
+    </div>
+    <div class="row">
+      <label>핵심 기능
+        <textarea name="core_features" placeholder="핵심 기능을 줄 단위로 작성">{{ project.core_features or '' }}</textarea>
+      </label>
+      <label>부가기능
+        <textarea name="additional_features" placeholder="보조 기능, 운영 편의 기능">{{ project.additional_features or '' }}</textarea>
+      </label>
+    </div>
+    <div class="row">
+      <label>정성 효과
+        <textarea name="qualitative_effect" placeholder="품질, 협업, 의사결정, 사용자 경험 개선">{{ project.qualitative_effect or '' }}</textarea>
+      </label>
+      <label>정량 효과
+        <textarea name="quantitative_effect" placeholder="시간 단축, 건수, 비율, 처리량 등">{{ project.quantitative_effect or '' }}</textarea>
+      </label>
+    </div>
+    <label>산출물
+      <textarea name="deliverables" placeholder="문서, 화면, 자동화 도구, 리포트, 배포 결과">{{ project.deliverables or '' }}</textarea>
+    </label>
+    </details>
+    <button type="submit">프로젝트 상세 저장</button>
+  </form>
+</section>
+
+<div class="grid project-detail">
+  <section>
+    <h2>일별 기록</h2>
+    {% for work_date, entries in entry_groups %}
+      <div class="daily-group">
+        <h3>{{ work_date }}</h3>
+        {% for entry in entries %}
+          <article class="daily-entry">
+            <div class="entry-head">
+              <span class="muted">기록 #{{ entry.id }}</span>
+              <a class="text-link" href="/entries/{{ entry.id }}/edit">수정</a>
+            </div>
+            <p class="muted">정리된 업무</p>
+            <p class="raw-text">{{ entry.refined_text or (entry.raw_text | refine_work) }}</p>
+            {% set linked_items = entry_work_items.get(entry.id, []) %}
+            {% if linked_items %}
+              <div class="entry-work-list">
+                <p class="muted">업무 카드</p>
+                {% for item in linked_items %}
+                  <div class="entry-work-item">
+                    <a class="text-link" href="/work-items/{{ item.id }}/edit">{{ item.key }}</a>
+                    <span>{{ item.title }}</span>
+                    <span class="status-tag">{{ status_labels[item.status] }}</span>
+                    <span class="muted">{{ type_labels.get(item.item_type, item.item_type) }} · {{ item.priority }}{% if item.completed_at %} · 완료일 {{ item.completed_at[:10] }}{% endif %}</span>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+            <details class="raw-original">
+              <summary>원본</summary>
+              <p class="raw-text">{{ entry.raw_text }}</p>
+            </details>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="muted">이 프로젝트에 연결된 기록이 없습니다.</p>
+    {% endfor %}
+  </section>
+
+  <aside>
+    <h2>업무 카드</h2>
+    {% for item in items %}
+      <article class="work-card">
+        <p><span class="pill">{{ item.key }}</span></p>
+        <p>{{ item.title }}</p>
+        <p class="muted">{{ status_labels[item.status] }} · {{ type_labels.get(item.item_type, item.item_type) }} · {{ item.priority }}</p>
+        <p><a class="text-link" href="/work-items/{{ item.id }}/edit">수정</a></p>
+      </article>
+    {% else %}
+      <p class="muted">아직 카드가 없습니다.</p>
+    {% endfor %}
+  </aside>
+</div>
+{% endblock %}

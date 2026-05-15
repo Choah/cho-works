@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<section>
+  <h1>요약 프롬프트</h1>
+  <p class="muted">일별, 주별, 월별, 분기별, 년별 리포트가 어떤 말투와 기준으로 정리될지 저장합니다.</p>
+</section>
+
+<section class="prompt-grid">
+  {% for prompt in prompts %}
+    <article class="panel prompt-card">
+      <h2>{{ prompt.label }}</h2>
+      <form method="post" action="/prompts/{{ prompt.period_type }}">
+        <label>프롬프트
+          <textarea name="prompt_text" required>{{ prompt.prompt_text }}</textarea>
+        </label>
+        <div class="actions">
+          <button type="submit">저장</button>
+          <span class="muted">{{ prompt.updated_at }}</span>
+        </div>
+      </form>
+    </article>
+  {% endfor %}
+</section>
+{% endblock %}

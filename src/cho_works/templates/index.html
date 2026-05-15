@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block content %}
+<section>
+  <h1>오늘 기록</h1>
+  <p class="muted">{{ today }}</p>
+</section>
+
+<div class="grid">
+  <section class="panel">
+    <h2>업무 카드 입력</h2>
+    <form class="task-card-form" method="post" action="/entries">
+      <div class="row">
+        <label>날짜
+          <input type="date" name="work_date" value="{{ today }}" required>
+        </label>
+        <label>프로젝트
+          <input name="project" list="project-options" placeholder="새 프로젝트 또는 기존 프로젝트">
+          <datalist id="project-options">
+            {% for project in projects %}
+              <option value="{{ project.key }}">{{ project.name }}</option>
+              {% if project.name != project.key %}
+                <option value="{{ project.name }}">{{ project.key }}</option>
+              {% endif %}
+            {% endfor %}
+          </datalist>
+        </label>
+      </div>
+      <label>업무 내용
+        <textarea name="raw_text" placeholder="오늘 한 일을 자유롭게 적어주세요." required></textarea>
+      </label>
+      <div class="row three">
+        <label>상태
+          <select name="status">
+            {% for key, label in status_labels.items() %}
+              <option value="{{ key }}" {% if key == "todo" %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>우선순위
+          <select name="priority">
+            {% for priority in priorities %}
+              <option value="{{ priority }}" {% if priority == "medium" %}selected{% endif %}>{{ priority }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>완료일
+          <input type="date" name="completed_at" data-open-date-picker="true">
+        </label>
+      </div>
+      <input type="hidden" name="item_type" value="task">
+      <button type="submit">업무 카드 저장</button>
+    </form>
+  </section>
+
+  <aside class="panel pet">
+    <h2>앵무새 파트너</h2>
+    <div class="parrot-stage">
+      <div class="parrot" aria-label="parrot companion">
+        <img class="parrot-icon" src="/static/img/parrot-companion.png" alt="Cho Works parrot companion">
+        <div class="tail"></div>
+        <div class="body"></div>
+        <div class="wing"></div>
+        <div class="head"></div>
+        <div class="face"></div>
+        <div class="eye"></div>
+        <div class="beak"></div>
+        <div class="perch"></div>
+      </div>
+      <div class="pet-bubble">
+        <p><span class="pill">{{ pet.mood }}</span></p>
+        <p><strong>{{ pet.message }}</strong></p>
+        <p class="muted">연속 기록 {{ pet.streak_days }}일 · 케어 포인트 {{ pet.care_points }}</p>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<section class="metrics">
+  <div class="metric">
+    <span class="muted">활성 프로젝트</span>
+    <strong>{{ projects | length }}</strong>
+  </div>
+  <div class="metric">
+    <span class="muted">막힌 카드</span>
+    <strong>{{ board.blocked | length }}</strong>
+  </div>
+  <div class="metric">
+    <span class="muted">완료 카드</span>
+    <strong>{{ board.done | length }}</strong>
+  </div>
+</section>
+
+{% if due_reminders %}
+<section class="panel reminder">
+  <h2>체크포인트</h2>
+  {% for reminder in due_reminders %}
+    <p>{{ reminder.message }}</p>
+  {% endfor %}
+</section>
+{% endif %}
+
+<section>
+  <h2>최근 기록</h2>
+  {% for card in entry_cards %}
+    {% set entry = card.entry %}
+    <article class="entry">
+      <div class="entry-head">
+        <time>{{ entry.work_date }}{% if entry.project %} · {{ entry.project }}{% endif %}</time>
+        <a class="text-link" href="/entries/{{ entry.id }}/edit">수정</a>
+      </div>
+      <p class="muted">정리된 업무</p>
+      <p class="raw-text">{{ card.refined_text }}</p>
+      <details class="raw-original">
+        <summary>원본</summary>
+        <p class="raw-text">{{ entry.raw_text }}</p>
+      </details>
+    </article>
+  {% else %}
+    <p class="muted">아직 기록이 없습니다.</p>
+  {% endfor %}
+  {% if recent_pagination.total_pages > 1 %}
+    <nav class="pagination" aria-label="최근 기록 페이지">
+      {% for page in recent_pagination.pages %}
+        <a
+          class="pagination-link{% if page == recent_pagination.page %} active{% endif %}"
+          href="/?recent_page={{ page }}"
+          {% if page == recent_pagination.page %}aria-current="page"{% endif %}
+        >{{ page }}</a>
+      {% endfor %}
+    </nav>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<section>
+  <h1>보드</h1>
+  <div class="board compact-board">
+    {% for status, items in board.items() %}
+      <div class="lane">
+        <div class="lane-head">
+          <h3>{{ status_labels[status] }}</h3>
+          <span class="board-lane-count">{{ items | length }}</span>
+        </div>
+        {% for item in items %}
+          <article class="work-card compact-work-card">
+            <div class="compact-card-head">
+              <span class="pill">{{ item.key }}</span>
+              <a class="text-link" href="/work-items/{{ item.id }}/edit">수정</a>
+            </div>
+            <p class="compact-card-title">{{ item.title }}</p>
+            <p class="muted card-dates">
+              {{ type_labels.get(item.item_type, item.item_type) }} · {{ item.priority }}
+              {% if item.source_work_date %} · 기록일 {{ item.source_work_date }}{% endif %}
+              {% if item.completed_at %} · 완료일 {{ item.completed_at[:10] }}{% endif %}
+            </p>
+          </article>
+        {% else %}
+          <p class="muted">비어 있음</p>
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

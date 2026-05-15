@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<section>
+  <h1>업무 카드 수정</h1>
+  <p class="muted">
+    기록 #{{ entry.id }}{% if primary_item %} · {{ primary_item.key }}{% endif %}
+  </p>
+</section>
+
+<section class="panel">
+  <form class="task-card-form" method="post" action="/entries/{{ entry.id }}">
+    <div class="row">
+      <label>날짜
+        <input type="date" name="work_date" value="{{ entry.work_date }}" required>
+      </label>
+      <label>프로젝트
+        <input name="project" list="project-options" value="{{ entry.project or '' }}" placeholder="프로젝트">
+        <datalist id="project-options">
+          {% for project in projects %}
+            <option value="{{ project.key }}">{{ project.name }}</option>
+            {% if project.name != project.key %}
+              <option value="{{ project.name }}">{{ project.key }}</option>
+            {% endif %}
+          {% endfor %}
+        </datalist>
+      </label>
+    </div>
+    <label>업무 내용
+      <textarea name="raw_text" required>{{ entry.raw_text }}</textarea>
+    </label>
+    <div class="row three">
+      <label>상태
+        <select name="status">
+          {% for key, label in status_labels.items() %}
+            <option value="{{ key }}" {% if primary_item and primary_item.status == key %}selected{% elif not primary_item and key == "todo" %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>우선순위
+        <select name="priority">
+          {% for priority in priorities %}
+            <option value="{{ priority }}" {% if primary_item and primary_item.priority == priority %}selected{% elif not primary_item and priority == "medium" %}selected{% endif %}>{{ priority }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>완료일
+        <input type="date" name="completed_at" value="{{ primary_item.completed_at[:10] if primary_item and primary_item.completed_at else '' }}" data-open-date-picker="true">
+      </label>
+    </div>
+    <input type="hidden" name="item_type" value="{{ primary_item.item_type if primary_item else 'task' }}">
+    <div class="actions">
+      <button type="submit">저장</button>
+      <a class="button secondary" href="/entries">취소</a>
+      <a class="button secondary" href="/board">보드 보기</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

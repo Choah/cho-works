@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+<section>
+  <h1>{{ title }}</h1>
+  <form method="get" action="/search">
+    <label>검색
+      <input name="q" value="{{ query | default('') }}" placeholder="프로젝트, 태그, 업무 내용">
+    </label>
+  </form>
+</section>
+
+<section>
+  <div class="table-wrap">
+    <table class="records-table">
+      <thead>
+        <tr>
+          <th>날짜</th>
+          <th>프로젝트</th>
+          <th>업무 내용</th>
+          <th>관리</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for entry in entries %}
+          <tr>
+            <td>{{ entry.work_date }}</td>
+            <td>{% if entry.project %}<span class="pill">{{ entry.project }}</span>{% else %}-{% endif %}</td>
+            <td>
+              <p class="muted">정리된 업무</p>
+              <p class="raw-text">{{ entry.refined_text or (entry.raw_text | refine_work) }}</p>
+              {% set linked_items = entry_work_items.get(entry.id, []) if entry_work_items is defined else [] %}
+              {% if linked_items %}
+                <div class="entry-work-list">
+                  <p class="muted">업무 카드</p>
+                  {% for item in linked_items %}
+                    <div class="entry-work-item">
+                      <a class="text-link" href="/work-items/{{ item.id }}/edit">{{ item.key }}</a>
+                      <span>{{ item.title }}</span>
+                      <span class="status-tag">{{ status_labels[item.status] }}</span>
+                      <span class="muted">{{ type_labels.get(item.item_type, item.item_type) }} · {{ item.priority }}{% if item.completed_at %} · 완료일 {{ item.completed_at[:10] }}{% endif %}</span>
+                    </div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+              <details class="raw-original">
+                <summary>원본</summary>
+                <p class="raw-text">{{ entry.raw_text }}</p>
+              </details>
+            </td>
+            <td><a class="text-link" href="/entries/{{ entry.id }}/edit">수정</a></td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="4" class="muted">표시할 기록이 없습니다.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

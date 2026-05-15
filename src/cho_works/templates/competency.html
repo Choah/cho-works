@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <h1>역량 평가</h1>
+    <p class="muted">월별로 Work/People 근거를 쌓고, 분기와 연간 평가 문장으로 이어지게 관리합니다.</p>
+  </div>
+  <div class="actions">
+    <a class="button secondary" href="{{ prev_month_url }}">전월</a>
+    <a class="button secondary" href="{{ next_month_url }}">다음월</a>
+  </div>
+</section>
+
+<section class="panel compact-form">
+  <div class="section-head">
+    <div>
+      <h2>월별 역량 기록</h2>
+      <p class="muted">연말 평가에 바로 활용할 수 있도록 짧은 근거 문장으로 작성합니다.</p>
+    </div>
+  </div>
+  <form method="post" action="/competency">
+    <label>기록 월
+      <input type="month" name="month_key" value="{{ selected_month }}" required>
+    </label>
+    <div class="competency-grid">
+      <article class="competency-column">
+        <h3>Work</h3>
+        <label>문제해결
+          <textarea name="work_problem_solving" placeholder="핵심 이슈를 어떻게 포착하고 해결했는지">{{ review.work_problem_solving if review else '' }}</textarea>
+        </label>
+        <label>업무효율성
+          <textarea name="work_efficiency" placeholder="우선순위, 자동화, 처리 방식 개선 등">{{ review.work_efficiency if review else '' }}</textarea>
+        </label>
+        <label>전문기술/지식
+          <textarea name="work_expertise" placeholder="기술 분석, 설계, 운영 지식, 도구 활용 등">{{ review.work_expertise if review else '' }}</textarea>
+        </label>
+      </article>
+      <article class="competency-column">
+        <h3>People</h3>
+        <label>커뮤니케이션
+          <textarea name="people_communication" placeholder="요구사항 파악, 공유, 보고, 조율 근거">{{ review.people_communication if review else '' }}</textarea>
+        </label>
+        <label>협업
+          <textarea name="people_collaboration" placeholder="현업, 개발, 운영 조직과 함께 진행한 내용">{{ review.people_collaboration if review else '' }}</textarea>
+        </label>
+        <label>상호존중/신뢰
+          <textarea name="people_trust" placeholder="신뢰를 만든 대응, 지원, 책임 있는 마무리">{{ review.people_trust if review else '' }}</textarea>
+        </label>
+      </article>
+    </div>
+    <button type="submit">역량 기록 저장</button>
+  </form>
+</section>
+
+<section>
+  <h2>누적 요약</h2>
+  <div class="competency-summary-grid">
+    {% for bucket in summaries %}
+      <article class="report-section competency-summary">
+        <p><span class="pill">{{ bucket.label }}</span></p>
+        <h3>{{ bucket.summary.title }}</h3>
+        {% if bucket.summary["reviews"] %}
+          {% for section in bucket.summary["sections"] %}
+            <div class="competency-section">
+              <h4>{{ section.title }}</h4>
+              {% if section["items"] %}
+                {% for item in section["items"] %}
+                  <div class="competency-item">
+                    <strong>{{ item.label }}</strong>
+                    {% for entry in item["entries"] %}
+                      <p><span class="muted">{{ entry.month }}</span> {{ entry.text }}</p>
+                    {% endfor %}
+                  </div>
+                {% endfor %}
+              {% else %}
+                <p class="muted">아직 작성된 근거가 없습니다.</p>
+              {% endif %}
+            </div>
+          {% endfor %}
+        {% else %}
+          <p class="muted">해당 기간에 저장된 역량 기록이 없습니다.</p>
+        {% endif %}
+      </article>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

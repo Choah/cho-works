@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<section>
+  <h1>알림</h1>
+  <div class="panel">
+    <form method="post" action="/reminders">
+      <div class="row">
+        <label>종류
+          <select name="reminder_type">
+            <option value="morning_plan">오전 계획</option>
+            <option value="afternoon_check">오후 점검</option>
+            <option value="end_of_day">퇴근 전 회고</option>
+          </select>
+        </label>
+        <label>시간
+          <input name="time_local" value="18:00" required>
+        </label>
+      </div>
+      <button type="submit">저장</button>
+    </form>
+  </div>
+</section>
+
+<section>
+  <h2>현재 체크포인트</h2>
+  {% for reminder in due_reminders %}
+    <article class="entry reminder">
+      <time>{{ reminder.scheduled_for }}</time>
+      <p>{{ reminder.message }}</p>
+    </article>
+  {% else %}
+    <p class="muted">지금 처리할 알림이 없습니다.</p>
+  {% endfor %}
+</section>
+{% endblock %}
+

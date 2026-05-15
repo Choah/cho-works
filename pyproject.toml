@@ -1,0 +1,60 @@
+[project]
+name = "cho-works"
+version = "0.1.0"
+description = "Local-first personal work log assistant with CLI, web summaries, reminders, and pet status."
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+authors = [
+    { name = "Choah" },
+]
+keywords = ["work-log", "kpi", "fastapi", "sqlite", "personal-productivity"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Framework :: FastAPI",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business",
+]
+dependencies = [
+    "fastapi>=0.115.0",
+    "jinja2>=3.1.0",
+    "pydantic>=2.0.0",
+    "python-multipart>=0.0.9",
+    "typer>=0.12.0",
+    "uvicorn>=0.30.0",
+]
+
+[project.optional-dependencies]
+llm = [
+    "openai>=2.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/Choah/cho-works"
+Repository = "https://github.com/Choah/cho-works"
+Issues = "https://github.com/Choah/cho-works/issues"
+
+[project.scripts]
+cho = "cho_works.cli:main"
+cho-web = "cho_works.web:main"
+
+[dependency-groups]
+dev = [
+    "httpx>=0.27.0",
+    "pytest>=8.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/cho_works"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q"
